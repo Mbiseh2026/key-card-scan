@@ -106,7 +106,7 @@ function Row({ icon: Icon, label, value }: { icon: any; label: string; value: Re
   return (
     <div className="flex items-center gap-3 px-4 py-3.5">
       <div className="size-9 rounded-xl bg-accent grid place-items-center text-navy">
-        <Icon className="size-4.5" />
+        <Icon className="size-4" />
       </div>
       <p className="text-sm font-medium flex-1">{label}</p>
       <div className="text-sm text-muted-foreground">{value}</div>
