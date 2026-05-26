@@ -21,7 +21,7 @@ export function AppShell() {
       <nav className="fixed bottom-0 inset-x-0 z-40 border-t border-border bg-card/95 backdrop-blur-lg">
         <div className="max-w-md mx-auto grid grid-cols-5 px-2 py-2 safe-bottom">
           {tabs.map(({ to, label, icon: Icon, primary }) => {
-            const active = to === "/" ? location.pathname === "/" : location.pathname.startsWith(to);
+            const active = location.pathname === to || (to !== "/home" && location.pathname.startsWith(to));
             if (primary) {
               return (
                 <Link key={to} to={to} className="flex flex-col items-center justify-center -mt-6">
