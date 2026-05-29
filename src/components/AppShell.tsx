@@ -2,13 +2,14 @@ import { Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { Home, ScanLine, ClipboardList, History, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const tabs = [
+type Tab = { to: string; label: string; icon: typeof Home; primary?: boolean };
+const tabs: Tab[] = [
   { to: "/home", label: "Home", icon: Home },
   { to: "/gate", label: "Gate", icon: ScanLine },
   { to: "/timetable", label: "Class", icon: ClipboardList, primary: true },
   { to: "/history", label: "History", icon: History },
   { to: "/more", label: "More", icon: MoreHorizontal },
-] as const;
+];
 
 export function AppShell() {
   const { location } = useRouterState();
