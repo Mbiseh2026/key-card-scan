@@ -15,7 +15,7 @@ const FILTERS = [
   { key: "present", label: "Present" },
   { key: "absent", label: "Absent" },
   { key: "late", label: "Late" },
-  { key: "left", label: "Left" },
+  { key: "excused", label: "Excuse" },
 ] as const;
 
 function ClassPage() {
@@ -42,7 +42,7 @@ function ClassPage() {
     present: students.filter(s => marks[s.id] === "present").length,
     absent: students.filter(s => marks[s.id] === "absent").length,
     late: students.filter(s => marks[s.id] === "late").length,
-    left: students.filter(s => marks[s.id] === "left").length,
+    excused: students.filter(s => marks[s.id] === "excused").length,
   }), [marks, students]);
 
   const visible = students.filter(s => filter === "all" || marks[s.id] === filter);
@@ -84,7 +84,7 @@ function ClassPage() {
         </div>
 
         <p className="text-[11px] text-muted-foreground mt-3">
-          Everyone is Present by default. Tap a button only for students who are Absent, Late, or Left.
+          Everyone is Present by default. Tap a button only for students who are Absent, Late, or Excused.
         </p>
 
         <div className="mt-3 space-y-2">
@@ -100,7 +100,7 @@ function ClassPage() {
                     st === "present" && "text-primary",
                     st === "absent" && "text-destructive",
                     st === "late" && "text-warning-foreground",
-                    st === "left" && "text-navy",
+                    st === "excused" && "text-navy",
                   )}>
                     {st.charAt(0).toUpperCase() + st.slice(1)}
                   </p>
@@ -108,7 +108,7 @@ function ClassPage() {
                 <div className="flex gap-1">
                   <MarkBtn label="A" tone="destructive" active={st === "absent"} onClick={() => set(s.id, "absent")} />
                   <MarkBtn label="L" tone="warning" active={st === "late"} onClick={() => set(s.id, "late")} />
-                  <MarkBtn label="←" tone="navy" active={st === "left"} onClick={() => set(s.id, "left")} />
+                  <MarkBtn label="E" tone="navy" active={st === "excused"} onClick={() => set(s.id, "excused")} />
                 </div>
               </div>
             );
