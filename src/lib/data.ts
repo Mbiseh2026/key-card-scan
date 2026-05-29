@@ -32,7 +32,7 @@ export type TimetableSlot = {
 };
 
 export type GateStatus = "present" | "late" | "no_entry";
-export type ClassStatus = "present" | "absent" | "late" | "left";
+export type ClassStatus = "present" | "absent" | "late" | "excused";
 
 export type GateRecord = {
   id: string;

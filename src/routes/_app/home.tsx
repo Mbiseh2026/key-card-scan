@@ -27,10 +27,10 @@ function HomePage() {
     <div className="pb-4">
       <header className="px-5 pt-12 pb-24 text-primary-foreground bg-navy rounded-b-[2rem]">
         <div className="flex items-center justify-between">
-          <button className="size-10 rounded-full bg-white/10 grid place-items-center"><Menu className="size-5" /></button>
+          <button className="size-12 rounded-full bg-white/10 grid place-items-center active:scale-95 transition-transform"><Menu className="size-6" /></button>
           <h1 className="text-lg font-bold">Attendance</h1>
-          <button className="size-10 rounded-full bg-white/10 grid place-items-center relative">
-            <Bell className="size-5" />
+          <button className="size-12 rounded-full bg-white/10 grid place-items-center relative active:scale-95 transition-transform">
+            <Bell className="size-6" />
             {stats.late > 0 && <span className="absolute top-2 right-2 size-2 rounded-full bg-warning" />}
           </button>
         </div>
