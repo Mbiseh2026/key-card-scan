@@ -12,11 +12,13 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AppSettingsRouteImport } from './routes/_app/settings'
-import { Route as AppScanRouteImport } from './routes/_app/scan'
+import { Route as AppTimetableRouteImport } from './routes/_app/timetable'
+import { Route as AppMoreRouteImport } from './routes/_app/more'
 import { Route as AppHomeRouteImport } from './routes/_app/home'
 import { Route as AppHistoryRouteImport } from './routes/_app/history'
-import { Route as AppAiRouteImport } from './routes/_app/ai'
+import { Route as AppGateRouteImport } from './routes/_app/gate'
+import { Route as AppGateSuccessRouteImport } from './routes/_app/gate.success'
+import { Route as AppClassClassIdRouteImport } from './routes/_app/class.$classId'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -32,14 +34,14 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppSettingsRoute = AppSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
+const AppTimetableRoute = AppTimetableRouteImport.update({
+  id: '/timetable',
+  path: '/timetable',
   getParentRoute: () => AppRoute,
 } as any)
-const AppScanRoute = AppScanRouteImport.update({
-  id: '/scan',
-  path: '/scan',
+const AppMoreRoute = AppMoreRouteImport.update({
+  id: '/more',
+  path: '/more',
   getParentRoute: () => AppRoute,
 } as any)
 const AppHomeRoute = AppHomeRouteImport.update({
@@ -52,63 +54,92 @@ const AppHistoryRoute = AppHistoryRouteImport.update({
   path: '/history',
   getParentRoute: () => AppRoute,
 } as any)
-const AppAiRoute = AppAiRouteImport.update({
-  id: '/ai',
-  path: '/ai',
+const AppGateRoute = AppGateRouteImport.update({
+  id: '/gate',
+  path: '/gate',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppGateSuccessRoute = AppGateSuccessRouteImport.update({
+  id: '/success',
+  path: '/success',
+  getParentRoute: () => AppGateRoute,
+} as any)
+const AppClassClassIdRoute = AppClassClassIdRouteImport.update({
+  id: '/class/$classId',
+  path: '/class/$classId',
   getParentRoute: () => AppRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/ai': typeof AppAiRoute
+  '/gate': typeof AppGateRouteWithChildren
   '/history': typeof AppHistoryRoute
   '/home': typeof AppHomeRoute
-  '/scan': typeof AppScanRoute
-  '/settings': typeof AppSettingsRoute
+  '/more': typeof AppMoreRoute
+  '/timetable': typeof AppTimetableRoute
+  '/class/$classId': typeof AppClassClassIdRoute
+  '/gate/success': typeof AppGateSuccessRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/ai': typeof AppAiRoute
+  '/gate': typeof AppGateRouteWithChildren
   '/history': typeof AppHistoryRoute
   '/home': typeof AppHomeRoute
-  '/scan': typeof AppScanRoute
-  '/settings': typeof AppSettingsRoute
+  '/more': typeof AppMoreRoute
+  '/timetable': typeof AppTimetableRoute
+  '/class/$classId': typeof AppClassClassIdRoute
+  '/gate/success': typeof AppGateSuccessRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
-  '/_app/ai': typeof AppAiRoute
+  '/_app/gate': typeof AppGateRouteWithChildren
   '/_app/history': typeof AppHistoryRoute
   '/_app/home': typeof AppHomeRoute
-  '/_app/scan': typeof AppScanRoute
-  '/_app/settings': typeof AppSettingsRoute
+  '/_app/more': typeof AppMoreRoute
+  '/_app/timetable': typeof AppTimetableRoute
+  '/_app/class/$classId': typeof AppClassClassIdRoute
+  '/_app/gate/success': typeof AppGateSuccessRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/login'
-    | '/ai'
+    | '/gate'
     | '/history'
     | '/home'
-    | '/scan'
-    | '/settings'
+    | '/more'
+    | '/timetable'
+    | '/class/$classId'
+    | '/gate/success'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/ai' | '/history' | '/home' | '/scan' | '/settings'
+  to:
+    | '/'
+    | '/login'
+    | '/gate'
+    | '/history'
+    | '/home'
+    | '/more'
+    | '/timetable'
+    | '/class/$classId'
+    | '/gate/success'
   id:
     | '__root__'
     | '/'
     | '/_app'
     | '/login'
-    | '/_app/ai'
+    | '/_app/gate'
     | '/_app/history'
     | '/_app/home'
-    | '/_app/scan'
-    | '/_app/settings'
+    | '/_app/more'
+    | '/_app/timetable'
+    | '/_app/class/$classId'
+    | '/_app/gate/success'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -140,18 +171,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_app/settings': {
-      id: '/_app/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof AppSettingsRouteImport
+    '/_app/timetable': {
+      id: '/_app/timetable'
+      path: '/timetable'
+      fullPath: '/timetable'
+      preLoaderRoute: typeof AppTimetableRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/scan': {
-      id: '/_app/scan'
-      path: '/scan'
-      fullPath: '/scan'
-      preLoaderRoute: typeof AppScanRouteImport
+    '/_app/more': {
+      id: '/_app/more'
+      path: '/more'
+      fullPath: '/more'
+      preLoaderRoute: typeof AppMoreRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/home': {
@@ -168,30 +199,57 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppHistoryRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/ai': {
-      id: '/_app/ai'
-      path: '/ai'
-      fullPath: '/ai'
-      preLoaderRoute: typeof AppAiRouteImport
+    '/_app/gate': {
+      id: '/_app/gate'
+      path: '/gate'
+      fullPath: '/gate'
+      preLoaderRoute: typeof AppGateRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/gate/success': {
+      id: '/_app/gate/success'
+      path: '/success'
+      fullPath: '/gate/success'
+      preLoaderRoute: typeof AppGateSuccessRouteImport
+      parentRoute: typeof AppGateRoute
+    }
+    '/_app/class/$classId': {
+      id: '/_app/class/$classId'
+      path: '/class/$classId'
+      fullPath: '/class/$classId'
+      preLoaderRoute: typeof AppClassClassIdRouteImport
       parentRoute: typeof AppRoute
     }
   }
 }
 
+interface AppGateRouteChildren {
+  AppGateSuccessRoute: typeof AppGateSuccessRoute
+}
+
+const AppGateRouteChildren: AppGateRouteChildren = {
+  AppGateSuccessRoute: AppGateSuccessRoute,
+}
+
+const AppGateRouteWithChildren =
+  AppGateRoute._addFileChildren(AppGateRouteChildren)
+
 interface AppRouteChildren {
-  AppAiRoute: typeof AppAiRoute
+  AppGateRoute: typeof AppGateRouteWithChildren
   AppHistoryRoute: typeof AppHistoryRoute
   AppHomeRoute: typeof AppHomeRoute
-  AppScanRoute: typeof AppScanRoute
-  AppSettingsRoute: typeof AppSettingsRoute
+  AppMoreRoute: typeof AppMoreRoute
+  AppTimetableRoute: typeof AppTimetableRoute
+  AppClassClassIdRoute: typeof AppClassClassIdRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
-  AppAiRoute: AppAiRoute,
+  AppGateRoute: AppGateRouteWithChildren,
   AppHistoryRoute: AppHistoryRoute,
   AppHomeRoute: AppHomeRoute,
-  AppScanRoute: AppScanRoute,
-  AppSettingsRoute: AppSettingsRoute,
+  AppMoreRoute: AppMoreRoute,
+  AppTimetableRoute: AppTimetableRoute,
+  AppClassClassIdRoute: AppClassClassIdRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

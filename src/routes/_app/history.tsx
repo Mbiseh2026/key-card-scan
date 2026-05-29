@@ -1,96 +1,115 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Search, CloudOff, CheckCircle2 } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { getAttendance, type AttendanceRecord } from "@/lib/attendance-store";
+import { useMemo, useState } from "react";
+import { ArrowLeft, Calendar, ChevronLeft, ChevronRight, Download } from "lucide-react";
+import { CLASSES, getGateRecords, getPerson, rollCallStatus, todayStats } from "@/lib/data";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/_app/history")({
-  component: HistoryPage,
-});
-
-type Range = "today" | "weekly" | "monthly";
+export const Route = createFileRoute("/_app/history")({ component: HistoryPage });
 
 function HistoryPage() {
-  const [range, setRange] = useState<Range>("today");
-  const [q, setQ] = useState("");
-  const [records, setRecords] = useState<AttendanceRecord[]>([]);
+  const [classFilter, setClassFilter] = useState<string>("all");
+  const stats = todayStats();
+  const records = getGateRecords().slice(0, 30);
+  const rollCall = rollCallStatus();
+  const filtered = useMemo(() => records.filter(r => {
+    if (classFilter === "all") return true;
+    const p = getPerson(r.personId);
+    return p?.classId === classFilter;
+  }), [records, classFilter]);
 
-  useEffect(() => {
-    const refresh = () => setRecords(getAttendance());
-    refresh();
-    window.addEventListener("attendance-changed", refresh);
-    return () => window.removeEventListener("attendance-changed", refresh);
-  }, []);
-
-  const filtered = useMemo(() => {
-    const now = new Date();
-    const cutoff = new Date(now);
-    if (range === "today") cutoff.setHours(0, 0, 0, 0);
-    if (range === "weekly") cutoff.setDate(now.getDate() - 7);
-    if (range === "monthly") cutoff.setMonth(now.getMonth() - 1);
-    return records.filter(r => new Date(r.time) >= cutoff)
-      .filter(r => !q || r.name.toLowerCase().includes(q.toLowerCase()) || r.classOrDept.toLowerCase().includes(q.toLowerCase()));
-  }, [records, range, q]);
+  const dateStr = new Date().toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" });
 
   return (
-    <div>
-      <div className="px-5 pt-12 pb-5 text-primary-foreground rounded-b-3xl" style={{ background: "var(--gradient-navy)" }}>
-        <div className="flex items-center justify-between">
-          <Link to="/home" className="size-10 rounded-full bg-white/10 grid place-items-center">
-            <ArrowLeft className="size-5" />
-          </Link>
-          <p className="font-semibold">Attendance History</p>
-          <span className="size-10" />
+    <div className="min-h-screen bg-background">
+      <header className="px-5 pt-12 pb-5 bg-card border-b border-border flex items-center justify-between">
+        <Link to="/home" className="size-10 grid place-items-center"><ArrowLeft className="size-5" /></Link>
+        <h1 className="font-bold">Attendance History</h1>
+        <button className="size-10 grid place-items-center text-muted-foreground"><Calendar className="size-5" /></button>
+      </header>
+
+      <div className="px-5 pt-4">
+        <div className="rounded-2xl bg-card border border-border p-2 flex items-center justify-between">
+          <button className="size-9 rounded-xl bg-muted grid place-items-center"><ChevronLeft className="size-4" /></button>
+          <p className="text-sm font-semibold">{dateStr}</p>
+          <button className="size-9 rounded-xl bg-muted grid place-items-center"><ChevronRight className="size-4" /></button>
         </div>
-        <div className="mt-4 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-white/60" />
-          <Input value={q} onChange={e => setQ(e.target.value)} placeholder="Search student, teacher, class…"
-            className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/60" />
+
+        <div className="mt-3 rounded-2xl bg-card border border-border grid grid-cols-4 divide-x divide-border overflow-hidden">
+          <Cell value={stats.present} label="Present" c="text-primary" />
+          <Cell value={stats.absent} label="Absent" c="text-destructive" />
+          <Cell value={stats.late} label="Late" c="text-warning-foreground" />
+          <Cell value={stats.excused} label="Excused" c="text-muted-foreground" />
         </div>
-        <div className="mt-3 grid grid-cols-3 gap-1.5 bg-white/10 p-1 rounded-xl">
-          {(["today", "weekly", "monthly"] as Range[]).map(r => (
-            <button key={r} onClick={() => setRange(r)} className={cn(
-              "py-2 rounded-lg text-xs font-semibold capitalize transition",
-              range === r ? "bg-primary text-primary-foreground" : "text-white/80"
-            )}>
-              {r}
-            </button>
+
+        <h2 className="text-sm font-bold mt-6 mb-2">Filter by class</h2>
+        <div className="flex gap-2 overflow-x-auto pb-1">
+          <Pill active={classFilter === "all"} onClick={() => setClassFilter("all")}>All</Pill>
+          {CLASSES.map(c => (
+            <Pill key={c.id} active={classFilter === c.id} onClick={() => setClassFilter(c.id)}>{c.name}</Pill>
           ))}
         </div>
-      </div>
 
-      <div className="px-5 py-4 space-y-2">
-        {filtered.length === 0 ? (
-          <div className="text-center py-16 text-muted-foreground text-sm">No records in this range.</div>
-        ) : filtered.map(r => {
-          const t = new Date(r.time);
-          return (
-            <div key={r.id} className="rounded-2xl bg-card border border-border p-3.5 flex items-center gap-3">
-              <div className="size-11 rounded-xl bg-accent grid place-items-center text-2xl">{r.photo}</div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <p className="font-semibold truncate">{r.name}</p>
-                  <span className="text-[10px] uppercase font-bold text-muted-foreground">{r.method}</span>
+        <h2 className="text-sm font-bold mt-6 mb-2">Roll Call Status</h2>
+        <div className="rounded-2xl bg-card border border-border divide-y divide-border">
+          {rollCall.map(({ slot, completed }) => {
+            const cls = CLASSES.find(c => c.id === slot.classId)!;
+            return (
+              <div key={slot.id} className="p-3 flex items-center gap-3">
+                <div className="flex-1">
+                  <p className="font-semibold text-sm">{cls.name} · {slot.subject}</p>
+                  <p className="text-[11px] text-muted-foreground">{slot.start} – {slot.end}</p>
                 </div>
-                <p className="text-xs text-muted-foreground truncate">{r.classOrDept} · {r.role}</p>
+                <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${
+                  completed ? "bg-primary/15 text-primary" : "bg-destructive/10 text-destructive"
+                }`}>
+                  {completed ? "✓ COMPLETED" : "⚠ PENDING"}
+                </span>
               </div>
-              <div className="text-right">
-                <p className="text-sm font-semibold">{t.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p>
-                <div className="flex items-center justify-end gap-1 mt-0.5">
-                  <span className={cn(
-                    "text-[10px] font-bold px-1.5 py-0.5 rounded uppercase",
-                    r.status === "late" ? "bg-warning/20 text-warning-foreground" : "bg-primary/15 text-primary"
-                  )}>{r.status}</span>
-                  {r.synced
-                    ? <CheckCircle2 className="size-3.5 text-primary" />
-                    : <CloudOff className="size-3.5 text-warning-foreground" />}
+            );
+          })}
+        </div>
+
+        <h2 className="text-sm font-bold mt-6 mb-2">Gate Activity</h2>
+        <div className="rounded-2xl bg-card border border-border divide-y divide-border">
+          {filtered.length === 0 && <p className="p-6 text-center text-sm text-muted-foreground">No records.</p>}
+          {filtered.map(r => {
+            const p = getPerson(r.personId);
+            if (!p) return null;
+            const time = new Date(r.time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+            return (
+              <div key={r.id} className="p-3 flex items-center gap-3">
+                <div className="size-10 rounded-full bg-accent grid place-items-center text-xl">{p.photo}</div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-sm truncate">{p.name}</p>
+                  <p className="text-[11px] text-muted-foreground">Arrived at {r.gate}</p>
                 </div>
+                <p className="text-xs font-semibold">{time}</p>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
+
+        <button className="mt-5 w-full rounded-2xl border border-border bg-card py-3 text-sm font-semibold flex items-center justify-center gap-2 text-muted-foreground">
+          <Download className="size-4" /> Export (coming soon)
+        </button>
       </div>
     </div>
+  );
+}
+
+function Cell({ value, label, c }: { value: number; label: string; c: string }) {
+  return (
+    <div className="py-3 text-center">
+      <p className={`text-2xl font-extrabold ${c}`}>{value}</p>
+      <p className="text-[11px] text-muted-foreground">{label}</p>
+    </div>
+  );
+}
+function Pill({ active, onClick, children }: any) {
+  return (
+    <button onClick={onClick} className={cn(
+      "shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold border",
+      active ? "bg-navy text-primary-foreground border-navy" : "bg-card text-muted-foreground border-border"
+    )}>{children}</button>
   );
 }
